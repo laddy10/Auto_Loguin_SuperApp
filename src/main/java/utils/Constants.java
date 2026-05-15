@@ -5,6 +5,7 @@ public class Constants {
     public static final String CONTINUAR = "Continuar";
     public static final String MIENTRAS_APP_ESTA_EN_USO = "mientras la app está en uso";
     public static final String ACEPTAR = "ACEPTAR";
+    public static final String CANCELAR = "Cancelar";
     public static final String ACEPTAR_2 = "Aceptar";
     public static final String NO_PERMITIR = "No permitir";
     public static final String OMITIR = "Omitir";

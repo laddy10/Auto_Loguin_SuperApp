@@ -17,19 +17,24 @@ Feature: Ingreso a la Super App
 
   #Login
 
-  @LOGIN_CORREO_01  @LOGIN
+  @LOGIN_CORREO_01
   Scenario: Login exitoso con correo electrónico
     Given EL USUARIO ABRE LA SUPER APP
     When  REALIZA EL INGRESO CON CORREO
 
 
-  @LOGIN_DOCUMENTO_01  @LOGIN
+  @LOGIN_DOCUMENTO_01
   Scenario: Login exitoso con documento
     Given EL USUARIO ABRE LA SUPER APP
     When  REALIZA EL INGRESO CON DOCUMENTO
 
 
-  @LOGIN_PIN_01  @LOGIN
+  @LOGIN_PIN_01
   Scenario: Login exitoso con pin
     Given EL USUARIO ABRE LA SUPER APP
     When  REALIZA EL INGRESO CON PIN
+
+  @LOGIN_COMPLETO
+  Scenario: Login exitoso con pin
+    Given EL USUARIO ABRE LA SUPER APP
+    Then  REALIZA TODOS LOS INGRESOS

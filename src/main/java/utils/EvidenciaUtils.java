@@ -8,7 +8,7 @@ public class EvidenciaUtils {
     private static int contadorPasos = 1;
 
     public static void registrarCaptura(String paso) {
-        String pasoNumerado = contadorPasos++ + ". " + paso;
+        String pasoNumerado = contadorPasos++ + " " + paso;
 
         // Registrar en tu sistema actual
         ReportHooks.registrarPaso(pasoNumerado);

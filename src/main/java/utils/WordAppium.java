@@ -70,7 +70,7 @@ public class WordAppium {
             LOGGER.severe("Error generando el reporte Word: " + e.getMessage());
         }
 
-        eliminarCapturas(capturas);
+        //eliminarCapturas(capturas);
     }
 
     private static void agregarPasosYCapturas(XWPFDocument doc, String[] pasos, File[] capturas) throws IOException, InvalidFormatException {

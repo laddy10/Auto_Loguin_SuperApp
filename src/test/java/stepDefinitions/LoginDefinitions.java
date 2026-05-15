@@ -42,8 +42,8 @@ public class LoginDefinitions {
         theActorCalled("actor")
                 .attemptsTo(
                         WaitUntil.the(LOADING_SPLASH, isNotPresent()),
-                        WaitUntil.the(LOADING_ESPERA_UN_MOMENTO, isNotPresent()).forNoMoreThan(40).seconds(),
-                        WaitFor.aTime(2000)
+                        WaitUntil.the(LOADING_ESPERA_UN_MOMENTO, isNotPresent()).forNoMoreThan(50).seconds(),
+                        WaitFor.aTime(1000)
                 );
     }
 
@@ -87,6 +87,13 @@ public class LoginDefinitions {
     public void ingresoPIN() {
         theActorInTheSpotlight().attemptsTo(
                 LoginSuperApp.con(LoginSuperApp.Metodo.PIN)
+        );
+    }
+
+    @Then("^REALIZA TODOS LOS INGRESOS$")
+    public void ingresoCOMPLETO() {
+        theActorInTheSpotlight().attemptsTo(
+                LoginSuperApp.con(LoginSuperApp.Metodo.TODOS)
         );
     }
 

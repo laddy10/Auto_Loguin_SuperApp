@@ -134,7 +134,21 @@ public class LoginPage {
   public static final Target BTN_MENU_HAMBURGUESA =
           Target.the("Boton menu hamburguesa").located(By.id("iv_menu"));
 
+  public static final Target LBL_INGRESA_PIN =
+          Target.the("Ingresa el PIN").located(By.id("com.clarocolombia.miclaro:id/tv_pin"));
 
+  public static final Target BTN_OLVIDE_CONTRASENA =
+          Target.the("Boton de olvide la contrasena").located(By.id("com.clarocolombia.miclaro:id/tv_lose_pass"));
 
+  public static final Target LBL_CREA_NUEVA_CONTRASENA=
+          Target.the("Texto de crea tu nueva contrasena")
+                  .located(By.xpath("//*[@text='Crea tu nueva contraseña']"));
+  public static final Target BTN_VOLVER_PAGINA_PRINCIPAL =
+          Target.the("Boton de volver a la página principal").located(By.id("com.clarocolombia.miclaro:id/tv_guest_page"));
+  public static final Target BTN_FLECHA_ATRAS =
+          Target.the("Boton de flecha atrás").located(By.id("com.clarocolombia.miclaro:id/iv_back"));
+
+  public static final Target BTN_CANCELAR_INICIO =
+          Target.the("Boton de cancelar sesión en este dispositivo").located(By.id("com.clarocolombia.miclaro:id/bt_bottom"));
 
 }
