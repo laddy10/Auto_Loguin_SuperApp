@@ -42,7 +42,7 @@ public class LoginDefinitions {
         theActorCalled("actor")
                 .attemptsTo(
                         WaitUntil.the(LOADING_SPLASH, isNotPresent()),
-                        WaitUntil.the(LOADING_ESPERA_UN_MOMENTO, isNotPresent()).forNoMoreThan(50).seconds(),
+                        WaitUntil.the(LOADING_ESPERA_UN_MOMENTO, isNotPresent()).forNoMoreThan(30).seconds(),
                         WaitFor.aTime(1000)
                 );
     }
@@ -87,6 +87,13 @@ public class LoginDefinitions {
     public void ingresoPIN() {
         theActorInTheSpotlight().attemptsTo(
                 LoginSuperApp.con(LoginSuperApp.Metodo.PIN)
+        );
+    }
+
+    @When("^REALIZA EL CAMBIO DE CONTRASENA$")
+    public void cambioDeContrasena() {
+        theActorInTheSpotlight().attemptsTo(
+                LoginSuperApp.con(LoginSuperApp.Metodo.CAMBIO_CONTRASENA)
         );
     }
 

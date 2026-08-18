@@ -17,24 +17,35 @@ Feature: Ingreso a la Super App
 
   #Login
 
+  # Tags individuales: mismo flujo que @LOGIN_COMPLETO pero uno por escenario.
+  # Cada uno deja la sesión cerrada al terminar, para que el siguiente arranque limpio.
+  # El nombre del escenario coincide con la fila de la tabla de resultados.
+
+  @LOGIN_CAMBIO_CONTRASENA_01
+  Scenario: Cambio de Contraseña
+    Given EL USUARIO ABRE LA SUPER APP
+    When  REALIZA EL CAMBIO DE CONTRASENA
+
+
+  @LOGIN_PIN_01
+  Scenario: Login por PIN
+    Given EL USUARIO ABRE LA SUPER APP
+    When  REALIZA EL INGRESO CON PIN
+
+
   @LOGIN_CORREO_01
-  Scenario: Login exitoso con correo electrónico
+  Scenario: Login Por Correo y Contraseña
     Given EL USUARIO ABRE LA SUPER APP
     When  REALIZA EL INGRESO CON CORREO
 
 
   @LOGIN_DOCUMENTO_01
-  Scenario: Login exitoso con documento
+  Scenario: Login por Documento
     Given EL USUARIO ABRE LA SUPER APP
     When  REALIZA EL INGRESO CON DOCUMENTO
 
 
-  @LOGIN_PIN_01
-  Scenario: Login exitoso con pin
-    Given EL USUARIO ABRE LA SUPER APP
-    When  REALIZA EL INGRESO CON PIN
-
   @LOGIN_COMPLETO
-  Scenario: Login exitoso con pin
+  Scenario: Monitoreo de inicios de sesión Mi Claro
     Given EL USUARIO ABRE LA SUPER APP
     Then  REALIZA TODOS LOS INGRESOS

@@ -10,6 +10,13 @@ import java.util.concurrent.TimeUnit;
 
 public class MyDriver implements DriverSource {
 
+  public static final String APP_PACKAGE = "com.clarocolombia.miclaro";
+
+  // Espera implícita global. Antes era 20s, lo que hacía que cada verificación de
+  // pantalla ausente (Presence.of(...)) bloqueara 20s. Se baja para acelerar; la
+  // sincronización real se hace con esperas explícitas (WaitUntil...forNoMoreThan).
+  public static final int IMPLICIT_WAIT_SECONDS = 5;
+
   private static AndroidDriver driver;
 
   public static AndroidDriver getDriver() {
@@ -25,7 +32,7 @@ public class MyDriver implements DriverSource {
       caps.setCapability("automationName", "UiAutomator2");
       caps.setCapability("platformName", "Android");
       caps.setCapability("app", System.getProperty("app", System.getProperty("user.dir") + "/src/test/resources/app/mi-claro.apk"));
-      caps.setCapability("appPackage", "com.clarocolombia.miclaro");
+      caps.setCapability("appPackage", APP_PACKAGE);
       caps.setCapability("appActivity", "com.claro.superapp.SplashActivity");
 
       caps.setCapability("noReset", true);
@@ -38,7 +45,7 @@ public class MyDriver implements DriverSource {
 
       URL hub = new URL("http://127.0.0.1:4723/wd/hub");
       driver = new AndroidDriver(hub, caps);
-      driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+      driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT_SECONDS, TimeUnit.SECONDS);
       return driver;
 
     } catch (Exception e) {

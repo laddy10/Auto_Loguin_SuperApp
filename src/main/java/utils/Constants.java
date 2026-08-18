@@ -19,5 +19,8 @@ public class Constants {
     public static final String EN_OTRO_MOMENTO = "En otro momento";
     public static final String CERRAR_SESION = "Cerrar sesión";
     public static final String SI_CERRAR = "Si, cerrar";
+    // Botón del aviso de Android para permitir que la app lea el SMS con el código.
+    public static final String PERMITIR = "Permitir";
+    public static final String TUS_SERVICIOS_FAVORITOS = "Tus servicios favoritos";
 
 }

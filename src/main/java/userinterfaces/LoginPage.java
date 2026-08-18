@@ -151,4 +151,26 @@ public class LoginPage {
   public static final Target BTN_CANCELAR_INICIO =
           Target.the("Boton de cancelar sesión en este dispositivo").located(By.id("com.clarocolombia.miclaro:id/bt_bottom"));
 
+  // Diálogo de Android (SMS User Consent): pide permiso para que la app lea el SMS
+  // con el código OTP y lo autocomplete. Aparece en el login por PIN.
+  public static final Target LBL_PERMISO_LEER_SMS =
+          Target.the("Diálogo: permitir que Mi Claro lea el mensaje con el código")
+                  .locatedBy("//*[contains(@text,'lea el mensaje')]");
+  public static final Target BTN_PERMITIR_LEER_SMS =
+          Target.the("Botón 'Permitir' del diálogo de lectura del SMS")
+                  .locatedBy("//*[@text='Permitir']");
+
+  // Pantalla "Claro Empresas": botón/slider para cambiar a la versión Personas.
+  public static final Target BTN_DESLIZA_PARA_PERSONAS =
+          Target.the("Botón 'Desliza para Personas' (cambiar de Empresas a Personas)")
+                  .locatedBy("//*[contains(@text,'Desliza para Personas')]");
+
+  // Publicidad del SIM Toolkit (com.android.stk) que aparece encima de la app.
+  public static final Target SMS_PUBLICIDAD_SISTEMA =
+          Target.the("Diálogo de publicidad del sistema (SIM Toolkit)")
+                  .locatedBy("//*[contains(@resource-id,'com.android.stk')]");
+  public static final Target BTN_CANCELAR_PUBLICIDAD_SISTEMA =
+          Target.the("Botón Cancelar de la publicidad del sistema (SIM Toolkit)")
+                  .located(By.id("android:id/button2"));
+
 }

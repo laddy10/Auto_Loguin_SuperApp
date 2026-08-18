@@ -24,9 +24,66 @@ import org.openqa.selenium.WebElement;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class AndroidObject extends Excepciones {
+
+    /**
+     * Verifica si un elemento está presente SIN pagar la espera implícita: pone el
+     * implicit wait en 0 durante la comprobación y lo restaura. Ideal para detectar
+     * pantallas/popups opcionales (que casi nunca están) sin bloquear varios segundos.
+     */
+    public static boolean existeRapido(Actor actor, Target target) {
+        AndroidDriver driver = androidDriver(actor);
+        try {
+            driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+            return !Presence.of(target).viewedBy(actor).resolveAll().isEmpty();
+        } catch (Exception e) {
+            return false;
+        } finally {
+            driver.manage().timeouts().implicitlyWait(MyDriver.IMPLICIT_WAIT_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * Espera a que un elemento aparezca, SIN usar pasos instrumentados de Serenity.
+     * Importante: un WaitUntil que expira registra un fallo en el reporte aunque se
+     * capture la excepción. Esto sondea en silencio y devuelve true/false.
+     */
+    public static boolean esperarPresencia(Actor actor, Target target, int segundos) {
+        long limite = System.currentTimeMillis() + segundos * 1000L;
+        while (System.currentTimeMillis() < limite) {
+            if (existeRapido(actor, target)) {
+                return true;
+            }
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Busca un texto en pantalla (por UiSelector, sin pagar la espera implícita).
+     * A diferencia de los locators por id/xpath del app, esto encuentra también los
+     * textos de diálogos del sistema que se muestran encima (otra ventana/paquete).
+     */
+    public static boolean existeTextoRapido(Actor actor, String texto) {
+        AndroidDriver driver = androidDriver(actor);
+        try {
+            driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+            return !driver.findElements(new MobileBy.ByAndroidUIAutomator(
+                    "new UiSelector().textContains(\"" + texto + "\")")).isEmpty();
+        } catch (Exception e) {
+            return false;
+        } finally {
+            driver.manage().timeouts().implicitlyWait(MyDriver.IMPLICIT_WAIT_SECONDS, TimeUnit.SECONDS);
+        }
+    }
 
     public void HideKeyboard(Actor actor) {
         androidDriver(actor).hideKeyboard();

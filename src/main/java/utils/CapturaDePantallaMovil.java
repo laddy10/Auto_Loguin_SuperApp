@@ -20,63 +20,101 @@ public class CapturaDePantallaMovil {
   private static final Logger LOGGER = Logger.getLogger(CapturaDePantallaMovil.class.getName());
   private static final String CAPTURAS_DIR = "Capturas/";
 
+  /** Captura de pantalla con nombre único (incluye timestamp). */
   public static String tomarCapturaPantalla(String nombreCaptura) {
-    String rutaDestino = "";
+    String nombreNormalizado = nombreCaptura.toLowerCase().replaceAll("[^a-z0-9]", "_");
+    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+    String rutaDestino = CAPTURAS_DIR + nombreNormalizado + "_" + timestamp + ".png";
+    escribirCapturaConBorde(rutaDestino, nombreCaptura);
+    return rutaDestino;
+  }
+
+  /**
+   * Igual que {@link #tomarCapturaPantalla} pero con nombre de archivo FIJO (sin
+   * timestamp): los reintentos reescriben la misma imagen en lugar de acumular
+   * capturas. Útil para dejar solo una evidencia por paso.
+   */
+  public static String tomarCapturaPantallaFija(String nombreCaptura) {
+    String nombreNormalizado = nombreCaptura.toLowerCase().replaceAll("[^a-z0-9]", "_");
+    String rutaDestino = CAPTURAS_DIR + nombreNormalizado + ".png";
+    escribirCapturaConBorde(rutaDestino, nombreCaptura);
+    return rutaDestino;
+  }
+
+  private static void escribirCapturaConBorde(String rutaDestino, String nombreCaptura) {
     try {
-      // Obtener fecha y hora actual en formato seguro para nombres de archivo
-      //   String formattedDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss"));
-      String nombreNormalizado = nombreCaptura
-              .toLowerCase()
-              .replaceAll("[^a-z0-9]", "_");  // Reemplaza todo lo que no sea letra o número
-
-      String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-      String nombreArchivo = nombreNormalizado + "_" + timestamp + ".png";
-      rutaDestino = CAPTURAS_DIR + nombreArchivo;
-      //  rutaDestino = CAPTURAS_DIR + nombreArchivo;
-
-      // Verificar si la carpeta Capturas/ existe, si no, crearla
       File carpetaCapturas = new File(CAPTURAS_DIR);
       if (!carpetaCapturas.exists()) {
         carpetaCapturas.mkdirs();
       }
 
       // Obtener el WebDriver actual y tomar la captura
-      TakesScreenshot screenshotTaker = (TakesScreenshot) SerenityWebdriverManager.inThisTestThread().getCurrentDriver();
+      TakesScreenshot screenshotTaker =
+              (TakesScreenshot) SerenityWebdriverManager.inThisTestThread().getCurrentDriver();
       File captura = screenshotTaker.getScreenshotAs(OutputType.FILE);
       File destinoTemporal = new File(CAPTURAS_DIR + "temp.png");
-
-      // Guardar la captura temporalmente
       FileUtils.copyFile(captura, destinoTemporal);
 
-      // Cargar la imagen correctamente
       BufferedImage imagen = ImageIO.read(destinoTemporal);
       if (imagen == null) {
         LOGGER.severe("No se pudo cargar la imagen, ImageIO.read() devolvió null.");
-        return "";
+        return;
       }
 
-      // Crear una nueva imagen con el mismo tamaño
-      BufferedImage imagenConBorde = new BufferedImage(imagen.getWidth(), imagen.getHeight(), BufferedImage.TYPE_INT_RGB);
+      // Imagen con borde blanco (igual que antes)
+      BufferedImage imagenConBorde =
+              new BufferedImage(imagen.getWidth(), imagen.getHeight(), BufferedImage.TYPE_INT_RGB);
       Graphics2D g2d = imagenConBorde.createGraphics();
       g2d.drawImage(imagen, 0, 0, null);
-
-      // Dibujar el borde rojo
       g2d.setColor(Color.WHITE);
-      g2d.setStroke(new BasicStroke(5)); // Grosor del borde
+      g2d.setStroke(new BasicStroke(5));
       g2d.drawRect(2, 2, imagen.getWidth() - 4, imagen.getHeight() - 4);
       g2d.dispose();
 
-      // Guardar la imagen con el borde
-      File destinoFinal = new File(rutaDestino);
-      ImageIO.write(imagenConBorde, "png", destinoFinal);
-
-      // Eliminar el archivo temporal
+      ImageIO.write(imagenConBorde, "png", new File(rutaDestino));
       destinoTemporal.delete();
 
-      LOGGER.info("Captura de pantalla guardada con borde rojo: " + rutaDestino);
+      LOGGER.info("Captura de pantalla guardada con borde: " + rutaDestino);
     } catch (IOException e) {
       LOGGER.log(Level.SEVERE, "Error al tomar o guardar la captura de pantalla: " + nombreCaptura, e);
     }
+  }
+
+  /**
+   * Guarda una imagen ya generada (ej. la tabla de resultados) en la carpeta
+   * Capturas/ usando la misma convención de nombres que las capturas de pantalla,
+   * para que el informe Word la asocie automáticamente con su paso.
+   */
+  public static String guardarImagen(String nombreCaptura, BufferedImage imagen) {
+    String rutaDestino = "";
+    try {
+      String nombreNormalizado = nombreCaptura.toLowerCase().replaceAll("[^a-z0-9]", "_");
+      String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+      rutaDestino = CAPTURAS_DIR + nombreNormalizado + "_" + timestamp + ".png";
+
+      File carpetaCapturas = new File(CAPTURAS_DIR);
+      if (!carpetaCapturas.exists()) {
+        carpetaCapturas.mkdirs();
+      }
+
+      ImageIO.write(imagen, "png", new File(rutaDestino));
+      LOGGER.info("Imagen personalizada guardada: " + rutaDestino);
+    } catch (IOException e) {
+      LOGGER.log(Level.SEVERE, "Error al guardar la imagen personalizada: " + nombreCaptura, e);
+    }
     return rutaDestino;
+  }
+
+  /** Borra los PNG de la carpeta Capturas/ para empezar una corrida limpia. */
+  public static void limpiarCapturas() {
+    File carpeta = new File(CAPTURAS_DIR);
+    File[] archivos = carpeta.listFiles();
+    if (archivos != null) {
+      for (File f : archivos) {
+        if (f.isFile() && f.getName().toLowerCase().endsWith(".png")) {
+          f.delete();
+        }
+      }
+    }
   }
 }

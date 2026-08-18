@@ -10,6 +10,7 @@ import listeners.OllamaStepListener;
 import net.serenitybdd.screenplay.actors.OnStage;
 import net.serenitybdd.screenplay.actors.OnlineCast;
 import net.thucydides.core.steps.StepEventBus;
+import utils.AdbUtils;
 import utils.EstadoPrueba;
 import utils.WordAppium;
 
@@ -49,6 +50,10 @@ public class ReportHooks {
     pasosEjecutados.clear();
     EstadoPrueba.fallo = false;
     EstadoPrueba.pasoFallido = "";
+
+    // 🔹 Desactivar la publicidad del SIM Toolkit (com.android.stk) para que no
+    //    interrumpa la automatización con popups de "PUBLICIDAD...".
+    AdbUtils.desactivarPublicidadSistema();
 
    /* // 🔹 Registrar el listener de Ollama solo una vez
     if (!listenerRegistrado) {
@@ -98,6 +103,9 @@ public class ReportHooks {
     System.out.println("   Estado: " + (scenario.isFailed() ? "❌ FAILED" : "✅ PASSED"));
     System.out.println("   Duración: " + duracionFormato);
     System.out.println("══════════════════════════════════════════════════════\n");
+
+    // Reactivar el SIM Toolkit para restaurar el estado del dispositivo.
+    AdbUtils.reactivarPublicidadSistema();
 
     // Limpiar estado para el siguiente escenario
     pasosEjecutados.clear();
