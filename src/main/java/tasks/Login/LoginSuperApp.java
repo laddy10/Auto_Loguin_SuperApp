@@ -101,6 +101,16 @@ public class LoginSuperApp implements Task {
      */
     private <T extends Actor> void asegurarEstadoInicial(T actor) {
         // Un popup del sistema puede tapar la pantalla y falsear la detección.
+
+        actor.attemptsTo(
+                WaitUntil.the(LOADING_ESPERA_UN_MOMENTO, WebElementStateMatchers.isNotPresent()).forNoMoreThan(20).seconds()
+        );
+        if (AndroidObject.existeRapido(actor,BTN_CERRAR_MINIPROGRAMA)) {
+            actor.attemptsTo(
+                    Click.on(BTN_CERRAR_MINIPROGRAMA)
+            );
+        }
+
         cerrarPublicidadSistema(actor);
         // Si abrió en "Claro Empresas", pasar a "Personas" antes de evaluar el estado.
         cambiarAPersonasSiEmpresas(actor);
@@ -173,6 +183,7 @@ public class LoginSuperApp implements Task {
         // Home con sesion iniciada. NO se valida con un texto exacto: el front de
         // Mi Claro cambia y "Tus servicios favoritos" dejo de existir, tumbando el
         // flujo. Se acepta cualquiera de varias senales.
+
         if (!esperarHomeLogueado(actor, 30)) {
             throw new AssertionError(
                     "No se llego al Home con sesion iniciada tras el login: no se encontro "
@@ -234,6 +245,12 @@ public class LoginSuperApp implements Task {
                     ClickElementByText.clickElementByText(CONTINUAR),
                     WaitUntil.the(LOADING_ESPERA_UN_MOMENTO, WebElementStateMatchers.isNotPresent())
                             .forNoMoreThan(35).seconds()
+            );
+        }
+        //Cerrar miniprograma si está abierto
+        if (AndroidObject.existeRapido(actor,BTN_CERRAR_MINIPROGRAMA)) {
+            actor.attemptsTo(
+                    Click.on(BTN_CERRAR_MINIPROGRAMA)
             );
         }
     }
@@ -434,6 +451,7 @@ public class LoginSuperApp implements Task {
     private <T extends Actor> void loginCompleto(T actor) {
         // Carpeta limpia: al final solo deben quedar las 5 evidencias + la tabla.
         CapturaDePantallaMovil.limpiarCapturas();
+
 
         List<TablaResultados.Fila> resultados = new ArrayList<>();
 
