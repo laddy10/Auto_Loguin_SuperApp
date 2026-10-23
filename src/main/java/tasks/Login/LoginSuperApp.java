@@ -105,6 +105,12 @@ public class LoginSuperApp implements Task {
         // Si abrió en "Claro Empresas", pasar a "Personas" antes de evaluar el estado.
         cambiarAPersonasSiEmpresas(actor);
 
+        if (AndroidObject.existeRapido(actor,BTN_CERRAR_MINIPROGRAMA)) {
+            actor.attemptsTo(
+                    Click.on(BTN_CERRAR_MINIPROGRAMA)
+            );
+        }
+
         boolean pantallaConocida =
                 AndroidObject.existeRapido(actor, LBL_INICIAR_SESION)
                         || AndroidObject.existeRapido(actor, BTN_MENU_HAMBURGUESA)
@@ -285,6 +291,14 @@ public class LoginSuperApp implements Task {
                             .forNoMoreThan(35).seconds()
             );
         }
+
+        if (AndroidObject.existeRapido(actor,BTN_CERRAR_MINIPROGRAMA)) {
+            actor.attemptsTo(
+                    Click.on(BTN_CERRAR_MINIPROGRAMA)
+            );
+        }
+
+
     }
 
     private <T extends Actor> void cerrarSesion(T actor) {
