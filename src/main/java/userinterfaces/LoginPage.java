@@ -172,8 +172,5 @@ public class LoginPage {
   public static final Target BTN_CANCELAR_PUBLICIDAD_SISTEMA =
           Target.the("Botón Cancelar de la publicidad del sistema (SIM Toolkit)")
                   .located(By.id("android:id/button2"));
-  public static final Target BTN_CERRAR_MINIPROGRAMA =
-          Target.the("Botón de cerrar un miniprograma")
-                  .located(By.xpath("//android.widget.Button[@content-desc=\"Cerrar\"]"));
 
 }
