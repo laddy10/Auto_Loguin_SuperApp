@@ -173,10 +173,11 @@ public class LoginSuperApp implements Task {
         // Home con sesion iniciada. NO se valida con un texto exacto: el front de
         // Mi Claro cambia y "Tus servicios favoritos" dejo de existir, tumbando el
         // flujo. Se acepta cualquiera de varias senales.
-        if (!esperarHomeLogueado(actor, 30)) {
+        if (!volverAlHome(actor, 45)) {
             throw new AssertionError(
                     "No se llego al Home con sesion iniciada tras el login: no se encontro "
-                            + "el menu principal ni la seccion de servicios favoritos.");
+                            + "el menu principal, la seccion de servicios favoritos, ni la "
+                            + "pestana \"" + MUNDO_CLARO + "\" para volver al inicio.");
         }
 
         // Evidencia de login exitoso (nombre fijo: se reescribe si se repite el flujo).
@@ -210,17 +211,65 @@ public class LoginSuperApp implements Task {
     private <T extends Actor> boolean esperarHomeLogueado(T actor, int segundos) {
         long limite = System.currentTimeMillis() + segundos * 1000L;
         while (System.currentTimeMillis() < limite) {
-            if (AndroidObject.existeRapido(actor, BTN_MENU_HAMBURGUESA)) return true;
-            if (AndroidObject.existeRapido(actor, LBL_TUS_SERVICIOS_FAVORITOS)) return true;
-            if (AndroidObject.existeTextoRapido(actor, "servicios favoritos")) return true;
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return false;
-            }
+            if (estaEnHome(actor)) return true;
+            if (!dormir(500)) return false;
         }
         return false;
+    }
+
+    /** Comprobacion instantanea (sin esperas) de si estamos en el Home logueado. */
+    private <T extends Actor> boolean estaEnHome(T actor) {
+        return AndroidObject.existeRapido(actor, BTN_MENU_HAMBURGUESA)
+                || AndroidObject.existeRapido(actor, LBL_TUS_SERVICIOS_FAVORITOS)
+                || AndroidObject.existeTextoRapido(actor, "servicios favoritos");
+    }
+
+    /**
+     * Deja la app en el Home despues de iniciar sesion, aunque haya redirigido.
+     *
+     * Mi Claro esta usando redirecciones temporales (fines de semana) que, al iniciar
+     * sesion, llevan al usuario a un "mundo" en vez de a la pestana principal: por
+     * ejemplo "Entretenimiento". El destino cambia en cada ejercicio, asi que en lugar
+     * de reconocer cada uno se NORMALIZA el estado: si no estamos en el Home pero se ve
+     * la barra inferior, se pulsa la pestana "Mundo Claro" y con eso se vuelve al inicio.
+     *
+     * Es idempotente y auto-adaptable: si no hay redireccion, detecta el Home de
+     * inmediato y no toca nada. Por eso cuando quiten la redireccion NO hay que
+     * cambiar codigo: el flujo se comporta igual que antes.
+     */
+    private <T extends Actor> boolean volverAlHome(T actor, int segundos) {
+        long limite = System.currentTimeMillis() + segundos * 1000L;
+        int intentosPestana = 0;
+
+        while (System.currentTimeMillis() < limite) {
+            if (estaEnHome(actor)) return true;
+
+            // Redirigido a un mundo: la barra inferior sigue visible.
+            if (intentosPestana < 2 && AndroidObject.existeTextoRapido(actor, MUNDO_CLARO)) {
+                System.out.println("ℹ️ Login redirigido fuera del Home. Volviendo por la pestana '"
+                        + MUNDO_CLARO + "'.");
+                try {
+                    actor.attemptsTo(ClickTextoQueContengaX.elTextoContiene(MUNDO_CLARO));
+                } catch (Throwable ignored) {
+                    StepEventBus.getEventBus().clearStepFailures();
+                }
+                intentosPestana++;
+            }
+
+            if (!dormir(700)) return false;
+        }
+        return false;
+    }
+
+    /** Pausa corta; devuelve false si el hilo fue interrumpido. */
+    private boolean dormir(long millis) {
+        try {
+            Thread.sleep(millis);
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
     }
 
     /**
