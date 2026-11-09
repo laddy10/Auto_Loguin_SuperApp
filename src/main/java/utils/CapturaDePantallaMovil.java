@@ -1,10 +1,5 @@
 package utils;
 
-import net.thucydides.core.webdriver.SerenityWebdriverManager;
-import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -20,45 +15,33 @@ public class CapturaDePantallaMovil {
   private static final Logger LOGGER = Logger.getLogger(CapturaDePantallaMovil.class.getName());
   private static final String CAPTURAS_DIR = "Capturas/";
 
-  /** Captura de pantalla con nombre único (incluye timestamp). */
-  public static String tomarCapturaPantalla(String nombreCaptura) {
+  /**
+   * Captura de pantalla con nombre de archivo FIJO (sin timestamp): los reintentos
+   * reescriben la misma imagen en lugar de acumular capturas. Así queda una sola
+   * evidencia por paso.
+   */
+  public static BufferedImage tomarCapturaPantallaFija(String nombreCaptura) {
     String nombreNormalizado = nombreCaptura.toLowerCase().replaceAll("[^a-z0-9]", "_");
-    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-    String rutaDestino = CAPTURAS_DIR + nombreNormalizado + "_" + timestamp + ".png";
-    escribirCapturaConBorde(rutaDestino, nombreCaptura);
-    return rutaDestino;
+    String rutaDestino = CAPTURAS_DIR + nombreNormalizado + ".png";
+    return escribirCapturaConBorde(rutaDestino, nombreCaptura);
   }
 
   /**
-   * Igual que {@link #tomarCapturaPantalla} pero con nombre de archivo FIJO (sin
-   * timestamp): los reintentos reescriben la misma imagen en lugar de acumular
-   * capturas. Útil para dejar solo una evidencia por paso.
+   * Toma la captura del dispositivo, le pone el borde blanco y la guarda en rutaDestino.
+   * Devuelve la imagen (para adjuntarla también al reporte sin otra captura) o null si
+   * no se pudo tomar. Nunca lanza.
    */
-  public static String tomarCapturaPantallaFija(String nombreCaptura) {
-    String nombreNormalizado = nombreCaptura.toLowerCase().replaceAll("[^a-z0-9]", "_");
-    String rutaDestino = CAPTURAS_DIR + nombreNormalizado + ".png";
-    escribirCapturaConBorde(rutaDestino, nombreCaptura);
-    return rutaDestino;
-  }
-
-  private static void escribirCapturaConBorde(String rutaDestino, String nombreCaptura) {
+  private static BufferedImage escribirCapturaConBorde(String rutaDestino, String nombreCaptura) {
     try {
       File carpetaCapturas = new File(CAPTURAS_DIR);
       if (!carpetaCapturas.exists()) {
         carpetaCapturas.mkdirs();
       }
 
-      // Obtener el WebDriver actual y tomar la captura
-      TakesScreenshot screenshotTaker =
-              (TakesScreenshot) SerenityWebdriverManager.inThisTestThread().getCurrentDriver();
-      File captura = screenshotTaker.getScreenshotAs(OutputType.FILE);
-      File destinoTemporal = new File(CAPTURAS_DIR + "temp.png");
-      FileUtils.copyFile(captura, destinoTemporal);
-
-      BufferedImage imagen = ImageIO.read(destinoTemporal);
+      BufferedImage imagen = ReporteSerenity.capturarDispositivo();
       if (imagen == null) {
-        LOGGER.severe("No se pudo cargar la imagen, ImageIO.read() devolvió null.");
-        return;
+        LOGGER.severe("No se pudo tomar la captura del dispositivo: " + nombreCaptura);
+        return null;
       }
 
       // Imagen con borde blanco (igual que antes)
@@ -72,11 +55,12 @@ public class CapturaDePantallaMovil {
       g2d.dispose();
 
       ImageIO.write(imagenConBorde, "png", new File(rutaDestino));
-      destinoTemporal.delete();
 
       LOGGER.info("Captura de pantalla guardada con borde: " + rutaDestino);
-    } catch (IOException e) {
+      return imagenConBorde;
+    } catch (IOException | RuntimeException e) {
       LOGGER.log(Level.SEVERE, "Error al tomar o guardar la captura de pantalla: " + nombreCaptura, e);
+      return null;
     }
   }
 

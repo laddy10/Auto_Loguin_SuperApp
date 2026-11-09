@@ -2,117 +2,93 @@ package stepDefinitions;
 
 import cucumber.api.Scenario;
 import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import interactions.wait.WaitFor;
-import interactions.wait.WaitForResponse;
-
-import models.User;
+import cucumber.api.java.es.Cuando;
+import cucumber.api.java.es.Dado;
+import cucumber.api.java.es.Entonces;
+import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.actors.OnStage;
 import net.serenitybdd.screenplay.actors.OnlineCast;
-import net.serenitybdd.screenplay.waits.WaitUntil;
-import tasks.Login.*;
-import tasks.Ollama.ValidateLocatorsWithOllama;
+import tasks.Login.FlujosLogin;
+import tasks.Login.MonitoreoLogin;
+import utils.CapturaDePantallaMovil;
 import utils.EvidenciaUtils;
-import utils.TestDataProvider;
 import utils.WordAppium;
 
 import static net.serenitybdd.screenplay.actors.OnStage.theActorCalled;
-import static net.serenitybdd.screenplay.actors.OnStage.theActorInTheSpotlight;
-import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isNotPresent;
-import static userinterfaces.LoginPage.*;
-import static utils.Constants.*;
 
+/**
+ * Pasos del feature login.feature.
+ *
+ * Los pasos de inicio de sesión se comportan distinto según el escenario:
+ *  - Tags individuales (@LOGIN_PIN_01, ...): si el inicio de sesión falla, el paso falla.
+ *  - Monitoreo (@LOGIN_COMPLETO): un fallo no detiene el resto; queda en rojo en su paso,
+ *    se anota en la tabla y el último paso ("todos los inicios de sesión son exitosos")
+ *    falla con el resumen.
+ */
 public class LoginDefinitions {
 
-    private final User user = TestDataProvider.getRealUser();
+    private static final String TAG_MONITOREO = "@LOGIN_COMPLETO";
 
+    private boolean esMonitoreo;
+    private FlujosLogin flujos;
+    private MonitoreoLogin monitoreo;
 
     @Before
     public void initScenario(Scenario scenario) {
         OnStage.setTheStage(new OnlineCast());
         WordAppium.inicializarPlantillaReporte();
         EvidenciaUtils.reiniciarContador(); // Reinicia el conteo de pasos para este escenario
+
+        esMonitoreo = scenario.getSourceTagNames().contains(TAG_MONITOREO);
+        if (esMonitoreo) {
+            // Carpeta limpia: al final solo deben quedar las 5 evidencias + la tabla.
+            CapturaDePantallaMovil.limpiarCapturas();
+        }
     }
 
-
-    @Given("EL USUARIO ABRE LA SUPER APP")
+    @Dado("^que el usuario abre la app Mi Claro$")
     public void abrirSuperApp() {
-        theActorCalled("actor")
-                .attemptsTo(
-                        WaitUntil.the(LOADING_SPLASH, isNotPresent()),
-                        WaitUntil.the(LOADING_ESPERA_UN_MOMENTO, isNotPresent()).forNoMoreThan(30).seconds(),
-                        WaitFor.aTime(1000)
-                );
+        Actor usuario = theActorCalled("Usuario");
+        flujos = new FlujosLogin(usuario);
+        monitoreo = new MonitoreoLogin(flujos);
+        flujos.esperarQueCargueLaApp();
     }
 
-    @When("^REALIZA EL INGRESO$")
-    public void ingresoSuperApp() {
-        theActorInTheSpotlight().attemptsTo(
-                IngresoSuperApp.ingresoSuperApp()
-        );
-    }
+    // ── Inicios de sesión (individuales o monitoreo) ─────────────────────────
 
-    @Then("^VERIFICA VERSION DE LA SUPER APP$")
-    public void verificaVersion() {
-        theActorInTheSpotlight().attemptsTo(
-                VersionSuperApp.validarVersion()
-        );
-    }
-
-    @When("^REALIZA EL INGRESO CON CEDULA$")
-    public void ingresoConCedula() {
-        theActorInTheSpotlight().attemptsTo(
-                LoginConCedula.conCedula()
-        );
-    }
-
-
-    @When("^REALIZA EL INGRESO CON CORREO$")
-    public void ingresoCorreo() {
-        theActorInTheSpotlight().attemptsTo(
-                LoginSuperApp.con(LoginSuperApp.Metodo.CORREO)
-        );
-    }
-
-    @When("^REALIZA EL INGRESO CON DOCUMENTO$")
-    public void ingresoDocumento() {
-        theActorInTheSpotlight().attemptsTo(
-                LoginSuperApp.con(LoginSuperApp.Metodo.DOCUMENTO)
-        );
-    }
-
-    @When("^REALIZA EL INGRESO CON PIN$")
-    public void ingresoPIN() {
-        theActorInTheSpotlight().attemptsTo(
-                LoginSuperApp.con(LoginSuperApp.Metodo.PIN)
-        );
-    }
-
-    @When("^REALIZA EL CAMBIO DE CONTRASENA$")
+    @Cuando("^valida el cambio de contraseña$")
     public void cambioDeContrasena() {
-        theActorInTheSpotlight().attemptsTo(
-                LoginSuperApp.con(LoginSuperApp.Metodo.CAMBIO_CONTRASENA)
-        );
+        iniciarSesion("Cambio de Contraseña", () -> flujos.cambioDeContrasena());
     }
 
-    @Then("^REALIZA TODOS LOS INGRESOS$")
-    public void ingresoCOMPLETO() {
-        theActorInTheSpotlight().attemptsTo(
-                LoginSuperApp.con(LoginSuperApp.Metodo.TODOS)
-        );
+    @Cuando("^inicia sesión con PIN$")
+    public void ingresoPin() {
+        String evidencia = esMonitoreo ? "Login exitoso" : "Login exitoso PIN";
+        iniciarSesion("Login por PIN", () -> flujos.loginPorPin(evidencia));
     }
 
+    @Cuando("^inicia sesión con correo y contraseña$")
+    public void ingresoCorreo() {
+        String evidencia = esMonitoreo ? "Login exitoso" : "Login exitoso Correo";
+        iniciarSesion("Login Por Correo y Contraseña", () -> flujos.loginPorCorreo(evidencia));
+    }
 
+    @Cuando("^inicia sesión con documento$")
+    public void ingresoDocumento() {
+        String evidencia = esMonitoreo ? "Login exitoso" : "Login exitoso Documento";
+        iniciarSesion("Login por Documento", () -> flujos.loginPorDocumento(evidencia));
+    }
 
-   /* @When("verifico los siguientes localizadores o textos {string} contra el page source {string}")
-    public void verificoLosLocalizadoresContraElPageSource(String locatorsOrTexts, String xmlFileName) {
-        // Leer maxLocatorsToSend desde serenity.properties si prefieres (por ejemplo 100)
-        int maxLocatorsToSend = 100; // ajustable o configurable
+    @Entonces("^todos los inicios de sesión son exitosos$")
+    public void concluirMonitoreo() {
+        monitoreo.concluir();
+    }
 
-        OnStage.theActorInTheSpotlight().attemptsTo(
-                ValidateLocatorsWithOllama.using(xmlFileName, locatorsOrTexts, maxLocatorsToSend)
-        );
-    }*/
+    private void iniciarSesion(String etiqueta, Runnable flujo) {
+        if (esMonitoreo) {
+            monitoreo.ejecutar(etiqueta, flujo);
+        } else {
+            flujo.run();
+        }
+    }
 }

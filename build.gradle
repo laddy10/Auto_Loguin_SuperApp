@@ -92,13 +92,11 @@ dependencies {
     // WebDriverManager
     implementation 'io.github.bonigarcia:webdrivermanager:5.0.3'
 
-    // JSON
-    implementation 'org.json:json:20210307'
-
     // Apache POI
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
 
-    //cliente Ollama
+    // Cliente HTTP. Llegó con Ollama (ya no se usa), pero al declararlo Selenium habla
+    // con Appium por okhttp 4.12 en vez de su 3.11: se conserva para no cambiar ese transporte.
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     implementation 'org.seleniumhq.selenium:selenium-remote-driver:3.141.59'

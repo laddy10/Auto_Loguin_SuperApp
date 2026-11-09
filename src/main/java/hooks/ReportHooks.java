@@ -6,10 +6,8 @@ import java.util.List;
 import cucumber.api.Scenario;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
-import listeners.OllamaStepListener;
 import net.serenitybdd.screenplay.actors.OnStage;
 import net.serenitybdd.screenplay.actors.OnlineCast;
-import net.thucydides.core.steps.StepEventBus;
 import utils.AdbUtils;
 import utils.EstadoPrueba;
 import utils.WordAppium;
@@ -19,7 +17,6 @@ import utils.WordAppium;
  *
  * Responsabilidades:
  * - Inicializar actores de Serenity
- * - Registrar OllamaStepListener
  * - Generar reportes Word
  * - Tracking de pasos y estado
  */
@@ -28,7 +25,6 @@ public class ReportHooks {
   private static final List<String> pasosEjecutados = new ArrayList<>();
   private static String lineaUsada = "Sin datos";
   private static String ultimoPaso = "";
-  private static boolean listenerRegistrado = false;
 
   public static void registrarPaso(String paso) {
     pasosEjecutados.add(paso);
@@ -54,19 +50,6 @@ public class ReportHooks {
     // 🔹 Desactivar la publicidad del SIM Toolkit (com.android.stk) para que no
     //    interrumpa la automatización con popups de "PUBLICIDAD...".
     AdbUtils.desactivarPublicidadSistema();
-
-   /* // 🔹 Registrar el listener de Ollama solo una vez
-    if (!listenerRegistrado) {
-      try {
-        OllamaStepListener ollamaListener = new OllamaStepListener();
-        StepEventBus.getEventBus().registerListener(ollamaListener);
-        listenerRegistrado = true;
-        System.out.println("✅ [OLLAMA] Listener registrado correctamente");
-      } catch (Exception e) {
-        System.err.println("❌ [OLLAMA] Error al registrar listener: " + e.getMessage());
-        e.printStackTrace();
-      }
-    }*/
 
     // 🔹 Inicializar actores de Serenity
     OnStage.setTheStage(new OnlineCast());

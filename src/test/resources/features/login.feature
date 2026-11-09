@@ -1,51 +1,41 @@
-Feature: Ingreso a la Super App
-
-  @SA001
-    Scenario: Login exitoso con correo electrónico
-    Given EL USUARIO ABRE LA SUPER APP
-    When  REALIZA EL INGRESO
-    Then  VERIFICA VERSION DE LA SUPER APP
-
-  @SA002
-  Scenario: Login exitoso con cédula
-    Given EL USUARIO ABRE LA SUPER APP
-    When  REALIZA EL INGRESO CON CEDULA
-    Then  VERIFICA VERSION DE LA SUPER APP
-
-
-    ################################################################################################
-
-  #Login
+# language: es
+Característica: Ingreso a la Super App
 
   # Tags individuales: mismo flujo que @LOGIN_COMPLETO pero uno por escenario.
   # Cada uno deja la sesión cerrada al terminar, para que el siguiente arranque limpio.
   # El nombre del escenario coincide con la fila de la tabla de resultados.
 
   @LOGIN_CAMBIO_CONTRASENA_01
-  Scenario: Cambio de Contraseña
-    Given EL USUARIO ABRE LA SUPER APP
-    When  REALIZA EL CAMBIO DE CONTRASENA
+  Escenario: Cambio de Contraseña
+    Dado que el usuario abre la app Mi Claro
+    Cuando valida el cambio de contraseña
 
 
   @LOGIN_PIN_01
-  Scenario: Login por PIN
-    Given EL USUARIO ABRE LA SUPER APP
-    When  REALIZA EL INGRESO CON PIN
+  Escenario: Login por PIN
+    Dado que el usuario abre la app Mi Claro
+    Cuando inicia sesión con PIN
 
 
   @LOGIN_CORREO_01
-  Scenario: Login Por Correo y Contraseña
-    Given EL USUARIO ABRE LA SUPER APP
-    When  REALIZA EL INGRESO CON CORREO
+  Escenario: Login Por Correo y Contraseña
+    Dado que el usuario abre la app Mi Claro
+    Cuando inicia sesión con correo y contraseña
 
 
   @LOGIN_DOCUMENTO_01
-  Scenario: Login por Documento
-    Given EL USUARIO ABRE LA SUPER APP
-    When  REALIZA EL INGRESO CON DOCUMENTO
+  Escenario: Login por Documento
+    Dado que el usuario abre la app Mi Claro
+    Cuando inicia sesión con documento
 
 
+  # Monitoreo: prueba los 4 inicios de sesión aunque alguno falle y al final arma la
+  # tabla de resultados. Si alguno falló, el escenario termina fallido.
   @LOGIN_COMPLETO
-  Scenario: Monitoreo de inicios de sesión Mi Claro
-    Given EL USUARIO ABRE LA SUPER APP
-    Then  REALIZA TODOS LOS INGRESOS
+  Escenario: Monitoreo de inicios de sesión Mi Claro
+    Dado que el usuario abre la app Mi Claro
+    Cuando valida el cambio de contraseña
+    Y inicia sesión con PIN
+    Y inicia sesión con correo y contraseña
+    Y inicia sesión con documento
+    Entonces todos los inicios de sesión son exitosos
