@@ -82,9 +82,12 @@ public final class ReporteSerenity {
 
     /** Toma una captura del dispositivo (solo si ya hay sesión de Appium) y la adjunta. */
     public static void adjuntarCapturaDelDispositivo(String nombre) {
+        long inicio = System.currentTimeMillis();
         BufferedImage captura = capturarDispositivo();
         if (captura != null) {
             adjuntarImagen(nombre, captura, false);
+            System.out.println("📷 [Reporte] " + nombre + " ("
+                    + (System.currentTimeMillis() - inicio) + " ms)");
         }
     }
 

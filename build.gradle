@@ -122,5 +122,11 @@ configurations.all {
     }
 }
 
+// src/test/resources/app/mi-claro.apk (250 MB, sin uso: appium.app va vacio) no se copia
+// a build/: esa copia sola tardaba ~1 min 15 s en cada corrida.
+processTestResources {
+    exclude 'app/**'
+}
+
 gradle.startParameter.continueOnFailure = true
 test.finalizedBy('aggregate')

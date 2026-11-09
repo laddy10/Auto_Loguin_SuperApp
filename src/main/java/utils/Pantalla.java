@@ -359,7 +359,10 @@ public final class Pantalla {
 
         void atender(Actor actor) {
             System.out.println("ℹ️ Desvío del flujo normal: " + descripcion);
-            Paso.ejecutar(descripcion, () -> accion.accept(actor));
+            Paso.ejecutar(descripcion, () -> {
+                Paso.capturar(); // el aviso tal como apareció, antes de cerrarlo
+                accion.accept(actor);
+            });
         }
     }
 }

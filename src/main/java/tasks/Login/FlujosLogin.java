@@ -90,7 +90,7 @@ public class FlujosLogin {
             Pantalla.escribir(actor, CAMPO_TEXTO, documento, 15);
             Pantalla.ocultarTeclado(actor);
             Pantalla.tocar(actor, CONTINUAR, 10);
-            Pantalla.tocar(actor, OLVIDE_CONTRASENA, 15);
+            capturarYTocar(OLVIDE_CONTRASENA, 15);
         });
 
         Paso.ejecutar("Confirmar el documento para recuperar la contraseña", () -> {
@@ -99,7 +99,7 @@ public class FlujosLogin {
             Pantalla.esperarQueDesaparezca(actor, OLVIDE_CONTRASENA, 10);
             Pantalla.escribir(actor, CAMPO_TEXTO, documento, 15);
             Pantalla.ocultarTeclado(actor);
-            Pantalla.tocar(actor, CONTINUAR, 10);
+            capturarYTocar(CONTINUAR, 10);
         });
 
         Paso.ejecutar("Validar la pantalla \"Crea tu nueva contraseña\"", () -> {
@@ -126,11 +126,15 @@ public class FlujosLogin {
             Pantalla.tocar(actor, OTROS_METODOS, 15);
             Pantalla.tocar(actor, OPCION_PIN, 10);
             Pantalla.escribir(actor, CAMPO_TEXTO, user.getNumero(), 15);
-            Pantalla.tocar(actor, CONTINUAR, 10);
+            capturarYTocar(CONTINUAR, 10);
         });
 
         Paso.ejecutar("Validar que la app pide el PIN enviado por SMS", () -> {
-            if (!Pantalla.esperar(actor, PANTALLA_PIN, 20, desvioPublicidadSim())) {
+            // Si el SMS llega rápido, el aviso de Android para leerlo (otra ventana) tapa
+            // la pantalla del PIN y esta deja de encontrarse: cualquiera de las dos sirve.
+            Elemento visto = Pantalla.esperarAlguno(actor, 20,
+                    Arrays.asList(PANTALLA_PIN, PERMITIR_LEER_SMS), desvioPublicidadSim());
+            if (visto == null) {
                 throw Pantalla.noAparecio(actor, PANTALLA_PIN, 20);
             }
             EvidenciaUtils.registrarEvidencia("Ingresar PIN");
@@ -147,7 +151,7 @@ public class FlujosLogin {
                         + " esperando el PIN." + Pantalla.describirPantalla(actor));
             }
             if (visto == PERMITIR_LEER_SMS) {
-                Pantalla.tocar(actor, PERMITIR_LEER_SMS, 5);
+                capturarYTocar(PERMITIR_LEER_SMS, 5);
             }
         });
 
@@ -161,6 +165,7 @@ public class FlujosLogin {
         Paso.ejecutar("Elegir el método correo electrónico", () -> {
             Pantalla.tocar(actor, OTROS_METODOS, 15);
             Pantalla.tocar(actor, OPCION_CORREO, 10);
+            Pantalla.esperar(actor, CAMPO_TEXTO, 10);
         });
 
         String correo = user.getEmail();
@@ -205,8 +210,10 @@ public class FlujosLogin {
     private void abrirInicioDeSesion() {
         Paso.ejecutar("Abrir la pantalla de inicio de sesión", () -> {
             if (!Pantalla.esperar(actor, INICIAR_SESION, 10, desviosDelInicio())) {
-                Paso.ejecutar("Reabrir la app: quedó en una pantalla que no se reconoce",
-                        this::reabrirApp);
+                Paso.ejecutar("Reabrir la app: quedó en una pantalla que no se reconoce", () -> {
+                    Paso.capturar(); // la pantalla desconocida, antes de cerrar la app
+                    reabrirApp();
+                });
                 if (!Pantalla.esperar(actor, INICIAR_SESION, 25, desviosDelInicio())) {
                     throw new AssertionError("La app no muestra el inicio con el botón"
                             + " \"Iniciar sesión\", ni siquiera después de reabrirla."
@@ -223,7 +230,7 @@ public class FlujosLogin {
             }
             if (visto == INGRESAR_CON_OTRA_CUENTA) {
                 Paso.ejecutar("La app recordó la última cuenta: se elige \"Ingresar con otra cuenta\"",
-                        () -> Pantalla.tocar(actor, INGRESAR_CON_OTRA_CUENTA, 5));
+                        () -> capturarYTocar(INGRESAR_CON_OTRA_CUENTA, 5));
                 if (Pantalla.esperarAlguno(actor, 15, FORMULARIO) == null) {
                     throw new AssertionError("Después de \"Ingresar con otra cuenta\" no apareció el"
                             + " formulario de ingreso en 15 s." + Pantalla.describirPantalla(actor));
@@ -245,7 +252,7 @@ public class FlujosLogin {
                         + Pantalla.describirPantalla(actor));
             }
             Pantalla.escribir(actor, CAMPO_TEXTO, user.getPassword(), 10);
-            Pantalla.tocar(actor, CONTINUAR, 10);
+            capturarYTocar(CONTINUAR, 10);
         });
     }
 
@@ -295,6 +302,18 @@ public class FlujosLogin {
         });
 
         cerrarSesion();
+    }
+
+    /**
+     * Espera el elemento, adjunta la captura al paso (la pantalla justo antes de la
+     * acción, que es lo que explica el paso) y lo pulsa.
+     */
+    private void capturarYTocar(Elemento elemento, int segundos) {
+        if (!Pantalla.esperar(actor, elemento, segundos)) {
+            throw Pantalla.noAparecio(actor, elemento, segundos);
+        }
+        Paso.capturar();
+        Pantalla.tocar(actor, elemento, 5);
     }
 
     private void cerrarSesion() {
