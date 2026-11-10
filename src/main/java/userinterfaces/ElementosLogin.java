@@ -109,4 +109,7 @@ public final class ElementosLogin {
             porTexto("la bienvenida con términos y condiciones", "¡Te damos la bienvenida!");
     public static final Elemento CHECK_TERMINOS =
             porId("la casilla de términos y condiciones", "iv_protocol");
+    /** Recorrido de bienvenida ("¡Desliza y descúbrela!"): sale tras borrar datos o actualizar. */
+    public static final Elemento OMITIR_RECORRIDO =
+            porTexto("el botón \"Omitir\" del recorrido de bienvenida", "Omitir");
 }

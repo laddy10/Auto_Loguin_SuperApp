@@ -378,6 +378,12 @@ public class FlujosLogin {
                             Pantalla.tocar(a, DESLIZA_PARA_PERSONAS, 5);
                             Pantalla.dormir(1500);
                         }),
+                Desvio.si(OMITIR_RECORRIDO,
+                        "Se omite el recorrido de bienvenida de la app (\"¡Desliza y descúbrela!\")",
+                        a -> {
+                            Pantalla.tocar(a, OMITIR_RECORRIDO, 5);
+                            Pantalla.dormir(1000);
+                        }),
                 Desvio.si(CERRAR_MINIPROGRAMA,
                         "Se cierra un miniprograma que quedó abierto",
                         a -> Pantalla.tocar(a, CERRAR_MINIPROGRAMA, 5)),
@@ -409,6 +415,12 @@ public class FlujosLogin {
                 Desvio.si(CERRAR_MINIPROGRAMA,
                         "Se cierra un miniprograma que se abrió al ingresar",
                         a -> Pantalla.tocar(a, CERRAR_MINIPROGRAMA, 5)),
+                Desvio.si(OMITIR_RECORRIDO,
+                        "Se omite el recorrido de bienvenida de la app (\"¡Desliza y descúbrela!\")",
+                        a -> {
+                            Pantalla.tocar(a, OMITIR_RECORRIDO, 5);
+                            Pantalla.dormir(1000);
+                        }),
                 Desvio.si(INGRESO_BIOMETRICO,
                         "Se pospone la activación del ingreso biométrico (\"En otro momento\")",
                         a -> Pantalla.tocar(a, EN_OTRO_MOMENTO, 5)),
