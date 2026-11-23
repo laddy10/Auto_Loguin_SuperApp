@@ -337,7 +337,7 @@ public class FlujosLogin {
      * aviso colgado). No falla: si algo no responde, el paso siguiente lo dirá.
      */
     public void reabrirApp() {
-        AndroidDriver<?> driver = Pantalla.driver(actor);
+        AndroidDriver driver = Pantalla.driver(actor);
         try {
             driver.terminateApp(Elemento.PAQUETE);
         } catch (WebDriverException e) {

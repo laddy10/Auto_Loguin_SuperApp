@@ -1,6 +1,6 @@
 package userinterfaces;
 
-import io.appium.java_client.MobileBy;
+import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 
 /**
@@ -70,7 +70,7 @@ public final class Elemento {
     }
 
     public static Elemento porUiSelector(String nombre, String uiSelector) {
-        return new Elemento(nombre, new MobileBy.ByAndroidUIAutomator(uiSelector));
+        return new Elemento(nombre, AppiumBy.androidUIAutomator(uiSelector));
     }
 
     /** Escapa los metacaracteres de regex para buscar el texto literal. */

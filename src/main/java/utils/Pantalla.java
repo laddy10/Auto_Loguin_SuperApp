@@ -1,6 +1,6 @@
 package utils;
 
-import io.appium.java_client.MobileBy;
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.abilities.BrowseTheWeb;
@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -55,12 +55,12 @@ public final class Pantalla {
 
     /** Driver de Appium real (sin la capa de Serenity, que impone su espera implícita). */
     @SuppressWarnings("unchecked")
-    public static AndroidDriver<WebElement> driver(Actor actor) {
+    public static AndroidDriver driver(Actor actor) {
         WebDriver driver = BrowseTheWeb.as(actor).getDriver();
         if (driver instanceof WebDriverFacade) {
             driver = ((WebDriverFacade) driver).getProxiedDriver();
         }
-        return (AndroidDriver<WebElement>) driver;
+        return (AndroidDriver) driver;
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -73,7 +73,7 @@ public final class Pantalla {
     }
 
     private static List<WebElement> buscar(Actor actor, Elemento elemento) {
-        AndroidDriver<WebElement> driver = driver(actor);
+        AndroidDriver driver = driver(actor);
         try {
             return driver.findElements(elemento.localizador());
         } catch (NoSuchElementException | StaleElementReferenceException e) {
@@ -97,7 +97,7 @@ public final class Pantalla {
      */
     private static void sinEsperaImplicita(Actor actor) {
         try {
-            driver(actor).manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+            driver(actor).manage().timeouts().implicitlyWait(Duration.ZERO);
         } catch (WebDriverException ignored) {
             // Si no se pudo, la siguiente búsqueda lo dirá.
         }
@@ -279,7 +279,7 @@ public final class Pantalla {
         try {
             sinEsperaImplicita(actor);
             List<WebElement> conTexto = driver(actor).findElements(
-                    new MobileBy.ByAndroidUIAutomator("new UiSelector().textMatches(\".+\")"));
+                    AppiumBy.androidUIAutomator("new UiSelector().textMatches(\".+\")"));
             Set<String> textos = new LinkedHashSet<>();
             for (WebElement e : conTexto) {
                 if (textos.size() >= 8) {

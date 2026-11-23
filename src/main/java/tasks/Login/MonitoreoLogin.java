@@ -1,6 +1,6 @@
 package tasks.Login;
 
-import net.thucydides.core.model.TestStep;
+import net.thucydides.model.domain.TestStep;
 import net.thucydides.core.steps.StepEventBus;
 import utils.EvidenciaUtils;
 import utils.Paso;

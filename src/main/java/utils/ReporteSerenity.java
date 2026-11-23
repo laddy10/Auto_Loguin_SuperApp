@@ -1,8 +1,8 @@
 package utils;
 
-import net.thucydides.core.model.TestOutcome;
-import net.thucydides.core.model.TestStep;
-import net.thucydides.core.screenshots.ScreenshotAndHtmlSource;
+import net.thucydides.model.domain.TestOutcome;
+import net.thucydides.model.domain.TestStep;
+import net.thucydides.model.screenshots.ScreenshotAndHtmlSource;
 import net.thucydides.core.steps.BaseStepListener;
 import net.thucydides.core.steps.StepEventBus;
 import net.thucydides.core.webdriver.SerenityWebdriverManager;
@@ -120,8 +120,8 @@ public final class ReporteSerenity {
 
     /**
      * El paso en curso es el tope de la pila de pasos del BaseStepListener: es donde el
-     * mismo Serenity pone sus capturas. Esa pila es privada (Serenity 2.x), de ahí la
-     * reflexión; si cambiara, se usa el paso actual del TestOutcome.
+     * mismo Serenity pone sus capturas. Esa pila sigue siendo privada en Serenity 5.4, de
+     * ahí la reflexión; si cambiara, se usa el paso actual del TestOutcome.
      */
     @SuppressWarnings("unchecked")
     public static Optional<TestStep> pasoAbierto() {
@@ -141,13 +141,11 @@ public final class ReporteSerenity {
 
     private static File carpetaDeSalida() {
         try {
-            Field campo = BaseStepListener.class.getDeclaredField("outputDirectory");
-            campo.setAccessible(true);
-            Object valor = campo.get(StepEventBus.getEventBus().getBaseStepListener());
-            if (valor instanceof File) {
-                return (File) valor;
+            File valor = StepEventBus.getEventBus().getBaseStepListener().getOutputDirectory();
+            if (valor != null) {
+                return valor;
             }
-        } catch (ReflectiveOperationException | RuntimeException ignored) {
+        } catch (RuntimeException ignored) {
             // valor por defecto
         }
         return new File(System.getProperty("serenity.outputDirectory", "target/site/serenity"));
